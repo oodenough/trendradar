@@ -3,27 +3,17 @@
 币圈
 加密货币
 
+SpaceX
 特斯拉
 马斯克
-人工智能
-自动驾驶
-机器人
-微软
+
 Microsoft
 DeepSeek
-梁文锋
 英伟达
 NVIDIA
-黄仁勋
-AMD
 谷歌
 google
-gemini
-deepmind
-chatgpt
 openai
-sora
-claude
 Anthropic
 
 iphone
@@ -32,10 +22,3 @@ mac
 ios
 库克
 
-月球
-登月
-火星
-宇宙
-飞船
-航空
-SpaceX
