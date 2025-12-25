@@ -1,7 +1,11 @@
 比特币
+Bitcoin
 以太坊
+Ethereum
 币圈
 加密货币
+Crypto
+cryptocurrency
 
 SpaceX
 特斯拉
@@ -15,6 +19,7 @@ NVIDIA
 google
 openai
 Anthropic
+github
 
 iphone
 ipad
