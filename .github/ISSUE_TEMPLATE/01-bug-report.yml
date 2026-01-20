@@ -1,13 +1,18 @@
 # yaml-language-server: $schema=https://json.schemastore.org/github-issue-forms.json
 
 name: 🐛 遇到问题了
+<<<<<<< HEAD
 description: 程序运行不正常或出现错误
+=======
+description: 程序运行不正常、报错或功能失效（含 AI 分析问题）
+>>>>>>> upstream/master
 title: "[问题] "
 labels: ["bug"]
 body:
   - type: markdown
     attributes:
       value: |
+<<<<<<< HEAD
         **详细清楚的问题描述能帮助项目作者更快理解和解决你遇到的困扰**。强烈建议上传截图，图文并茂会让问题更容易被理解和定位。
 
         ---
@@ -67,10 +72,36 @@ body:
         1. 提供完整的错误日志截图
         2. 提供 `config.yaml` 配置内容
         3. 提供 Python 版本（运行 `python --version`）
+=======
+        ### ⚠️ 提交前必读
+        **请确保你正在使用 TrendRadar 的最新版本。**
+        很多问题在最新代码中可能已经修复。如果你使用的是旧版本，我将无法处理，请先更新后再试。
+
+        **简单的描述 + 关键截图** 是最有效的沟通方式。
+
+  - type: input
+    id: version
+    attributes:
+      label: 📦 TrendRadar 版本
+      description: 请务必提供。（如：v5.2.0 或 git commit id）
+      placeholder: v5.2.0 或 commit hash
+    validations:
+      required: true
+
+  - type: input
+    id: mcp-version
+    attributes:
+      label: 🔌 MCP Server 版本 (可选)
+      description: 如果你是通过 MCP 使用，请填写 MCP Server 的版本。
+      placeholder: v3.1.6 (非 MCP 用户留空)
+    validations:
+      required: false
+>>>>>>> upstream/master
 
   - type: dropdown
     id: bug-category
     attributes:
+<<<<<<< HEAD
       label: 🏷️ 遇到了什么问题
       options:
         - 数据获取问题（获取不到新闻、请求失败等）
@@ -92,12 +123,22 @@ body:
         - Docker 容器运行
         - GitHub Actions 自动运行
         - 其他方式
+=======
+      label: 🏷️ 问题类别
+      options:
+        - AI 分析相关（报错、内容异常、提示词失效等）
+        - 数据获取相关（爬不到新闻、平台失效等）
+        - 通知推送相关（收不到消息、推送报错等）
+        - 部署运行相关（Docker、Actions、Python 报错）
+        - 其他
+>>>>>>> upstream/master
     validations:
       required: true
 
   - type: textarea
     id: bug-description
     attributes:
+<<<<<<< HEAD
       label: 📝 详细描述问题
       description: 请详细说明遇到的问题（建议配合截图说明）
       placeholder: |
@@ -204,3 +245,37 @@ body:
         - 之前是否正常工作过
         - 最近有没有改动什么设置
         - 其他你觉得可能相关的信息
+=======
+      label: 📝 描述发生了什么
+      placeholder: |
+        请描述：
+        1. 你在做什么？
+        2. 出现了什么错误？（如果是 AI 问题，请贴出分析失败的错误提示）
+        3. 建议上传一张截图，这比文字更有力！
+    validations:
+      required: true
+
+  - type: textarea
+    id: error-logs
+    attributes:
+      label: 📋 错误日志/配置（可选）
+      placeholder: |
+        贴出相关的错误日志或 config.yaml 片段（记得隐藏 API Key 等敏感信息）：
+        ```
+        在这里贴内容...
+        ```
+    validations:
+      required: false
+
+  - type: dropdown
+    id: environment
+    attributes:
+      label: 🖥️ 使用环境
+      options:
+        - Docker (本地/NAS)
+        - GitHub Actions
+        - 本地 Python 运行
+        - MCP Server 客户端 (Cherry Studio等)
+    validations:
+      required: true
+>>>>>>> upstream/master

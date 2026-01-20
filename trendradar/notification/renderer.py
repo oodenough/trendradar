@@ -11,27 +11,56 @@ from typing import Dict, List, Optional, Callable
 from trendradar.report.formatter import format_title_for_platform
 
 
+<<<<<<< HEAD
+=======
+# 默认区域顺序
+DEFAULT_REGION_ORDER = ["hotlist", "rss", "new_items", "standalone", "ai_analysis"]
+
+
+>>>>>>> upstream/master
 def render_feishu_content(
     report_data: Dict,
     update_info: Optional[Dict] = None,
     mode: str = "daily",
     separator: str = "---",
+<<<<<<< HEAD
     reverse_content_order: bool = False,
     get_time_func: Optional[Callable[[], datetime]] = None,
 ) -> str:
     """渲染飞书通知内容
+=======
+    region_order: Optional[List[str]] = None,
+    get_time_func: Optional[Callable[[], datetime]] = None,
+    rss_items: Optional[list] = None,
+    show_new_section: bool = True,
+) -> str:
+    """渲染飞书通知内容（支持热榜+RSS合并）
+>>>>>>> upstream/master
 
     Args:
         report_data: 报告数据字典，包含 stats, new_titles, failed_ids, total_new_count
         update_info: 版本更新信息（可选）
         mode: 报告模式 ("daily", "incremental", "current")
         separator: 内容分隔符
+<<<<<<< HEAD
         reverse_content_order: 是否反转内容顺序（新增在前）
         get_time_func: 获取当前时间的函数（可选，默认使用 datetime.now()）
+=======
+        region_order: 区域显示顺序列表
+        get_time_func: 获取当前时间的函数（可选，默认使用 datetime.now()）
+        rss_items: RSS 条目列表（可选，用于合并推送）
+        show_new_section: 是否显示新增热点区域
+>>>>>>> upstream/master
 
     Returns:
         格式化的飞书消息内容
     """
+<<<<<<< HEAD
+=======
+    if region_order is None:
+        region_order = DEFAULT_REGION_ORDER
+
+>>>>>>> upstream/master
     # 生成热点词汇统计部分
     stats_content = ""
     if report_data["stats"]:
@@ -66,7 +95,11 @@ def render_feishu_content(
 
     # 生成新增新闻部分
     new_titles_content = ""
+<<<<<<< HEAD
     if report_data["new_titles"]:
+=======
+    if show_new_section and report_data["new_titles"]:
+>>>>>>> upstream/master
         new_titles_content += (
             f"🆕 **本次新增热点新闻** (共 {report_data['total_new_count']} 条)\n\n"
         )
@@ -86,6 +119,7 @@ def render_feishu_content(
 
             new_titles_content += "\n"
 
+<<<<<<< HEAD
     # 根据配置决定内容顺序
     text_content = ""
     if reverse_content_order:
@@ -104,6 +138,28 @@ def render_feishu_content(
                 text_content += f"\n{separator}\n\n"
         if new_titles_content:
             text_content += new_titles_content
+=======
+    # RSS 内容
+    rss_content = ""
+    if rss_items:
+        rss_content = _render_rss_section_feishu(rss_items, separator)
+
+    # 准备各区域内容映射
+    region_contents = {
+        "hotlist": stats_content,
+        "new_items": new_titles_content,
+        "rss": rss_content,
+    }
+
+    # 按 region_order 顺序组装内容
+    text_content = ""
+    for region in region_order:
+        content = region_contents.get(region, "")
+        if content:
+            if text_content:
+                text_content += f"\n{separator}\n\n"
+            text_content += content
+>>>>>>> upstream/master
 
     if not text_content:
         if mode == "incremental":
@@ -138,21 +194,43 @@ def render_dingtalk_content(
     report_data: Dict,
     update_info: Optional[Dict] = None,
     mode: str = "daily",
+<<<<<<< HEAD
     reverse_content_order: bool = False,
     get_time_func: Optional[Callable[[], datetime]] = None,
 ) -> str:
     """渲染钉钉通知内容
+=======
+    region_order: Optional[List[str]] = None,
+    get_time_func: Optional[Callable[[], datetime]] = None,
+    rss_items: Optional[list] = None,
+    show_new_section: bool = True,
+) -> str:
+    """渲染钉钉通知内容（支持热榜+RSS合并）
+>>>>>>> upstream/master
 
     Args:
         report_data: 报告数据字典，包含 stats, new_titles, failed_ids, total_new_count
         update_info: 版本更新信息（可选）
         mode: 报告模式 ("daily", "incremental", "current")
+<<<<<<< HEAD
         reverse_content_order: 是否反转内容顺序（新增在前）
         get_time_func: 获取当前时间的函数（可选，默认使用 datetime.now()）
+=======
+        region_order: 区域显示顺序列表
+        get_time_func: 获取当前时间的函数（可选，默认使用 datetime.now()）
+        rss_items: RSS 条目列表（可选，用于合并推送）
+        show_new_section: 是否显示新增热点区域
+>>>>>>> upstream/master
 
     Returns:
         格式化的钉钉消息内容
     """
+<<<<<<< HEAD
+=======
+    if region_order is None:
+        region_order = DEFAULT_REGION_ORDER
+
+>>>>>>> upstream/master
     total_titles = sum(
         len(stat["titles"]) for stat in report_data["stats"] if stat["count"] > 0
     )
@@ -198,7 +276,11 @@ def render_dingtalk_content(
 
     # 生成新增新闻部分
     new_titles_content = ""
+<<<<<<< HEAD
     if report_data["new_titles"]:
+=======
+    if show_new_section and report_data["new_titles"]:
+>>>>>>> upstream/master
         new_titles_content += (
             f"🆕 **本次新增热点新闻** (共 {report_data['total_new_count']} 条)\n\n"
         )
@@ -216,6 +298,7 @@ def render_dingtalk_content(
 
             new_titles_content += "\n"
 
+<<<<<<< HEAD
     # 根据配置决定内容顺序
     text_content = header_content
     if reverse_content_order:
@@ -236,6 +319,32 @@ def render_dingtalk_content(
             text_content += new_titles_content
 
     if not stats_content and not new_titles_content:
+=======
+    # RSS 内容
+    rss_content = ""
+    if rss_items:
+        rss_content = _render_rss_section_markdown(rss_items)
+
+    # 准备各区域内容映射
+    region_contents = {
+        "hotlist": stats_content,
+        "new_items": new_titles_content,
+        "rss": rss_content,
+    }
+
+    # 按 region_order 顺序组装内容
+    text_content = header_content
+    has_content = False
+    for region in region_order:
+        content = region_contents.get(region, "")
+        if content:
+            if has_content:
+                text_content += "\n---\n\n"
+            text_content += content
+            has_content = True
+
+    if not has_content:
+>>>>>>> upstream/master
         if mode == "incremental":
             mode_text = "增量模式下暂无新增匹配的热点词汇"
         elif mode == "current":
@@ -258,3 +367,290 @@ def render_dingtalk_content(
         text_content += f"\n> TrendRadar 发现新版本 **{update_info['remote_version']}**，当前 **{update_info['current_version']}**"
 
     return text_content
+<<<<<<< HEAD
+=======
+
+
+def render_rss_feishu_content(
+    rss_items: list,
+    feeds_info: Optional[Dict] = None,
+    separator: str = "---",
+    get_time_func: Optional[Callable[[], datetime]] = None,
+) -> str:
+    """渲染 RSS 飞书通知内容
+
+    Args:
+        rss_items: RSS 条目列表，每个条目包含:
+            - title: 标题
+            - feed_id: RSS 源 ID
+            - feed_name: RSS 源名称
+            - url: 链接
+            - published_at: 发布时间
+            - summary: 摘要（可选）
+            - author: 作者（可选）
+        feeds_info: RSS 源 ID 到名称的映射
+        separator: 内容分隔符
+        get_time_func: 获取当前时间的函数（可选）
+
+    Returns:
+        格式化的飞书消息内容
+    """
+    if not rss_items:
+        now = get_time_func() if get_time_func else datetime.now()
+        return f"📭 暂无新的 RSS 订阅内容\n\n<font color='grey'>更新时间：{now.strftime('%Y-%m-%d %H:%M:%S')}</font>"
+
+    # 按 feed_id 分组
+    feeds_map: Dict[str, list] = {}
+    for item in rss_items:
+        feed_id = item.get("feed_id", "unknown")
+        if feed_id not in feeds_map:
+            feeds_map[feed_id] = []
+        feeds_map[feed_id].append(item)
+
+    text_content = f"📰 **RSS 订阅更新** (共 {len(rss_items)} 条)\n\n"
+
+    text_content += f"{separator}\n\n"
+
+    for feed_id, items in feeds_map.items():
+        feed_name = items[0].get("feed_name", feed_id) if items else feed_id
+        if feeds_info and feed_id in feeds_info:
+            feed_name = feeds_info[feed_id]
+
+        text_content += f"**{feed_name}** ({len(items)} 条)\n\n"
+
+        for i, item in enumerate(items, 1):
+            title = item.get("title", "")
+            url = item.get("url", "")
+            published_at = item.get("published_at", "")
+
+            if url:
+                text_content += f"  {i}. [{title}]({url})"
+            else:
+                text_content += f"  {i}. {title}"
+
+            if published_at:
+                text_content += f" <font color='grey'>- {published_at}</font>"
+
+            text_content += "\n"
+
+            if i < len(items):
+                text_content += "\n"
+
+        text_content += f"\n{separator}\n\n"
+
+    now = get_time_func() if get_time_func else datetime.now()
+    text_content += f"<font color='grey'>更新时间：{now.strftime('%Y-%m-%d %H:%M:%S')}</font>"
+
+    return text_content
+
+
+def render_rss_dingtalk_content(
+    rss_items: list,
+    feeds_info: Optional[Dict] = None,
+    get_time_func: Optional[Callable[[], datetime]] = None,
+) -> str:
+    """渲染 RSS 钉钉通知内容
+
+    Args:
+        rss_items: RSS 条目列表
+        feeds_info: RSS 源 ID 到名称的映射
+        get_time_func: 获取当前时间的函数（可选）
+
+    Returns:
+        格式化的钉钉消息内容
+    """
+    now = get_time_func() if get_time_func else datetime.now()
+
+    if not rss_items:
+        return f"📭 暂无新的 RSS 订阅内容\n\n> 更新时间：{now.strftime('%Y-%m-%d %H:%M:%S')}"
+
+    # 按 feed_id 分组
+    feeds_map: Dict[str, list] = {}
+    for item in rss_items:
+        feed_id = item.get("feed_id", "unknown")
+        if feed_id not in feeds_map:
+            feeds_map[feed_id] = []
+        feeds_map[feed_id].append(item)
+
+    # 头部信息
+    text_content = f"**总条目数：** {len(rss_items)}\n\n"
+    text_content += f"**时间：** {now.strftime('%Y-%m-%d %H:%M:%S')}\n\n"
+    text_content += "**类型：** RSS 订阅更新\n\n"
+
+    text_content += "---\n\n"
+
+    for feed_id, items in feeds_map.items():
+        feed_name = items[0].get("feed_name", feed_id) if items else feed_id
+        if feeds_info and feed_id in feeds_info:
+            feed_name = feeds_info[feed_id]
+
+        text_content += f"📰 **{feed_name}** ({len(items)} 条)\n\n"
+
+        for i, item in enumerate(items, 1):
+            title = item.get("title", "")
+            url = item.get("url", "")
+            published_at = item.get("published_at", "")
+
+            if url:
+                text_content += f"  {i}. [{title}]({url})"
+            else:
+                text_content += f"  {i}. {title}"
+
+            if published_at:
+                text_content += f" - {published_at}"
+
+            text_content += "\n"
+
+            if i < len(items):
+                text_content += "\n"
+
+        text_content += "\n---\n\n"
+
+    text_content += f"> 更新时间：{now.strftime('%Y-%m-%d %H:%M:%S')}"
+
+    return text_content
+
+
+def render_rss_markdown_content(
+    rss_items: list,
+    feeds_info: Optional[Dict] = None,
+    get_time_func: Optional[Callable[[], datetime]] = None,
+) -> str:
+    """渲染 RSS 通用 Markdown 格式内容（企业微信、Bark、ntfy、Slack）
+
+    Args:
+        rss_items: RSS 条目列表
+        feeds_info: RSS 源 ID 到名称的映射
+        get_time_func: 获取当前时间的函数（可选）
+
+    Returns:
+        格式化的 Markdown 消息内容
+    """
+    now = get_time_func() if get_time_func else datetime.now()
+
+    if not rss_items:
+        return f"📭 暂无新的 RSS 订阅内容\n\n更新时间：{now.strftime('%Y-%m-%d %H:%M:%S')}"
+
+    # 按 feed_id 分组
+    feeds_map: Dict[str, list] = {}
+    for item in rss_items:
+        feed_id = item.get("feed_id", "unknown")
+        if feed_id not in feeds_map:
+            feeds_map[feed_id] = []
+        feeds_map[feed_id].append(item)
+
+    text_content = f"📰 **RSS 订阅更新** (共 {len(rss_items)} 条)\n\n"
+
+    for feed_id, items in feeds_map.items():
+        feed_name = items[0].get("feed_name", feed_id) if items else feed_id
+        if feeds_info and feed_id in feeds_info:
+            feed_name = feeds_info[feed_id]
+
+        text_content += f"**{feed_name}** ({len(items)} 条)\n"
+
+        for i, item in enumerate(items, 1):
+            title = item.get("title", "")
+            url = item.get("url", "")
+            published_at = item.get("published_at", "")
+
+            if url:
+                text_content += f"  {i}. [{title}]({url})"
+            else:
+                text_content += f"  {i}. {title}"
+
+            if published_at:
+                text_content += f" `{published_at}`"
+
+            text_content += "\n"
+
+        text_content += "\n"
+
+    text_content += f"更新时间：{now.strftime('%Y-%m-%d %H:%M:%S')}"
+
+    return text_content
+
+
+# === RSS 内容渲染辅助函数（用于合并推送） ===
+
+def _render_rss_section_feishu(rss_items: list, separator: str = "---") -> str:
+    """渲染 RSS 内容区块（飞书格式，用于合并推送）"""
+    if not rss_items:
+        return ""
+
+    # 按 feed_id 分组
+    feeds_map: Dict[str, list] = {}
+    for item in rss_items:
+        feed_id = item.get("feed_id", "unknown")
+        if feed_id not in feeds_map:
+            feeds_map[feed_id] = []
+        feeds_map[feed_id].append(item)
+
+    text_content = f"📰 **RSS 订阅更新** (共 {len(rss_items)} 条)\n\n"
+
+    for feed_id, items in feeds_map.items():
+        feed_name = items[0].get("feed_name", feed_id) if items else feed_id
+
+        text_content += f"**{feed_name}** ({len(items)} 条)\n\n"
+
+        for i, item in enumerate(items, 1):
+            title = item.get("title", "")
+            url = item.get("url", "")
+            published_at = item.get("published_at", "")
+
+            if url:
+                text_content += f"  {i}. [{title}]({url})"
+            else:
+                text_content += f"  {i}. {title}"
+
+            if published_at:
+                text_content += f" <font color='grey'>- {published_at}</font>"
+
+            text_content += "\n"
+
+            if i < len(items):
+                text_content += "\n"
+
+        text_content += "\n"
+
+    return text_content.rstrip("\n")
+
+
+def _render_rss_section_markdown(rss_items: list) -> str:
+    """渲染 RSS 内容区块（通用 Markdown 格式，用于合并推送）"""
+    if not rss_items:
+        return ""
+
+    # 按 feed_id 分组
+    feeds_map: Dict[str, list] = {}
+    for item in rss_items:
+        feed_id = item.get("feed_id", "unknown")
+        if feed_id not in feeds_map:
+            feeds_map[feed_id] = []
+        feeds_map[feed_id].append(item)
+
+    text_content = f"📰 **RSS 订阅更新** (共 {len(rss_items)} 条)\n\n"
+
+    for feed_id, items in feeds_map.items():
+        feed_name = items[0].get("feed_name", feed_id) if items else feed_id
+
+        text_content += f"**{feed_name}** ({len(items)} 条)\n"
+
+        for i, item in enumerate(items, 1):
+            title = item.get("title", "")
+            url = item.get("url", "")
+            published_at = item.get("published_at", "")
+
+            if url:
+                text_content += f"  {i}. [{title}]({url})"
+            else:
+                text_content += f"  {i}. {title}"
+
+            if published_at:
+                text_content += f" `{published_at}`"
+
+            text_content += "\n"
+
+        text_content += "\n"
+
+    return text_content.rstrip("\n")
+>>>>>>> upstream/master

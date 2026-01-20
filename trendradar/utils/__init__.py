@@ -10,6 +10,10 @@ from trendradar.utils.time import (
     get_current_time_display,
     convert_time_for_display,
 )
+<<<<<<< HEAD
+=======
+from trendradar.utils.url import normalize_url, get_url_signature
+>>>>>>> upstream/master
 
 __all__ = [
     "get_configured_time",
@@ -17,4 +21,9 @@ __all__ = [
     "format_time_filename",
     "get_current_time_display",
     "convert_time_for_display",
+<<<<<<< HEAD
+=======
+    "normalize_url",
+    "get_url_signature",
+>>>>>>> upstream/master
 ]

@@ -8,7 +8,11 @@
 import os
 from typing import Optional
 
+<<<<<<< HEAD
 from trendradar.storage.base import StorageBackend, NewsData
+=======
+from trendradar.storage.base import StorageBackend, NewsData, RSSData
+>>>>>>> upstream/master
 
 
 # 存储管理器单例
@@ -201,6 +205,25 @@ class StorageManager:
         """保存新闻数据"""
         return self.get_backend().save_news_data(data)
 
+<<<<<<< HEAD
+=======
+    def save_rss_data(self, data: RSSData) -> bool:
+        """保存 RSS 数据"""
+        return self.get_backend().save_rss_data(data)
+
+    def get_rss_data(self, date: Optional[str] = None) -> Optional[RSSData]:
+        """获取指定日期的所有 RSS 数据（当日汇总模式）"""
+        return self.get_backend().get_rss_data(date)
+
+    def get_latest_rss_data(self, date: Optional[str] = None) -> Optional[RSSData]:
+        """获取最新一次抓取的 RSS 数据（当前榜单模式）"""
+        return self.get_backend().get_latest_rss_data(date)
+
+    def detect_new_rss_items(self, current_data: RSSData) -> dict:
+        """检测新增的 RSS 条目（增量模式）"""
+        return self.get_backend().detect_new_rss_items(current_data)
+
+>>>>>>> upstream/master
     def get_today_all_data(self, date: Optional[str] = None) -> Optional[NewsData]:
         """获取当天所有数据"""
         return self.get_backend().get_today_all_data(date)
@@ -264,6 +287,36 @@ class StorageManager:
         """是否支持 TXT 快照"""
         return self.get_backend().supports_txt
 
+<<<<<<< HEAD
+=======
+    # === 推送记录相关方法 ===
+
+    def has_pushed_today(self, date: Optional[str] = None) -> bool:
+        """
+        检查指定日期是否已推送过
+
+        Args:
+            date: 日期字符串（YYYY-MM-DD），默认为今天
+
+        Returns:
+            是否已推送
+        """
+        return self.get_backend().has_pushed_today(date)
+
+    def record_push(self, report_type: str, date: Optional[str] = None) -> bool:
+        """
+        记录推送
+
+        Args:
+            report_type: 报告类型
+            date: 日期字符串（YYYY-MM-DD），默认为今天
+
+        Returns:
+            是否记录成功
+        """
+        return self.get_backend().record_push(report_type, date)
+
+>>>>>>> upstream/master
 
 def get_storage_manager(
     backend_type: str = "auto",

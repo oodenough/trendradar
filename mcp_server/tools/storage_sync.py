@@ -148,6 +148,7 @@ class StorageSyncTools:
 
         return None
 
+<<<<<<< HEAD
     def _get_local_dates(self) -> List[str]:
         """获取本地可用的日期列表"""
         local_dir = self._get_local_data_dir()
@@ -163,6 +164,60 @@ class StorageSyncTools:
                     dates.append(folder_date.strftime("%Y-%m-%d"))
 
         return sorted(dates, reverse=True)
+=======
+    def _get_local_dates(self, db_type: str = "news") -> List[str]:
+        """
+        获取本地可用的日期列表
+
+        存储结构: output/{db_type}/{date}.db
+        例如: output/news/2025-12-30.db, output/rss/2025-12-30.db
+
+        Args:
+            db_type: 数据库类型 ("news" 或 "rss")，默认 "news"
+
+        Returns:
+            日期列表（按时间倒序）
+        """
+        local_dir = self._get_local_data_dir()
+        dates = set()
+
+        if not local_dir.exists():
+            return []
+
+        # 扫描 output/{db_type}/{date}.db 文件
+        type_dir = local_dir / db_type
+        if type_dir.exists():
+            for item in type_dir.iterdir():
+                if item.is_file() and item.suffix == ".db":
+                    # 从文件名解析日期 (2025-12-30.db -> 2025-12-30)
+                    date_str = item.stem  # 去除 .db 后缀
+                    folder_date = self._parse_date_folder_name(date_str)
+                    if folder_date:
+                        dates.add(folder_date.strftime("%Y-%m-%d"))
+
+        return sorted(list(dates), reverse=True)
+
+    def _get_all_local_dates(self) -> Dict[str, List[str]]:
+        """
+        获取所有本地可用的日期列表（包括 news 和 rss）
+
+        Returns:
+            {
+                "news": ["2025-12-30", ...],
+                "rss": ["2025-12-30", ...],
+                "all": ["2025-12-30", ...]  # 合并去重
+            }
+        """
+        news_dates = set(self._get_local_dates("news"))
+        rss_dates = set(self._get_local_dates("rss"))
+        all_dates = news_dates | rss_dates
+
+        return {
+            "news": sorted(list(news_dates), reverse=True),
+            "rss": sorted(list(rss_dates), reverse=True),
+            "all": sorted(list(all_dates), reverse=True)
+        }
+>>>>>>> upstream/master
 
     def _calculate_dir_size(self, path: Path) -> int:
         """计算目录大小（字节）"""
@@ -261,10 +316,24 @@ class StorageSyncTools:
 
             return {
                 "success": True,
+<<<<<<< HEAD
                 "synced_files": len(synced_dates),
                 "synced_dates": synced_dates,
                 "skipped_dates": skipped_dates,
                 "failed_dates": failed_dates,
+=======
+                "summary": {
+                    "description": "远程存储同步结果",
+                    "synced_files": len(synced_dates),
+                    "skipped_count": len(skipped_dates),
+                    "failed_count": len(failed_dates)
+                },
+                "data": {
+                    "synced_dates": synced_dates,
+                    "skipped_dates": skipped_dates,
+                    "failed_dates": failed_dates
+                },
+>>>>>>> upstream/master
                 "message": f"成功同步 {len(synced_dates)} 天数据" + (
                     f"，跳过 {len(skipped_dates)} 天（本地已存在）" if skipped_dates else ""
                 ) + (
@@ -301,16 +370,39 @@ class StorageSyncTools:
             local_config = storage_config.get("local", {})
             local_dir = self._get_local_data_dir()
             local_size = self._calculate_dir_size(local_dir)
+<<<<<<< HEAD
             local_dates = self._get_local_dates()
+=======
+
+            # 获取分类的日期列表
+            all_dates = self._get_all_local_dates()
+            news_dates = all_dates["news"]
+            rss_dates = all_dates["rss"]
+            combined_dates = all_dates["all"]
+>>>>>>> upstream/master
 
             local_status = {
                 "data_dir": local_config.get("data_dir", "output"),
                 "retention_days": local_config.get("retention_days", 0),
                 "total_size": f"{local_size / 1024 / 1024:.2f} MB",
                 "total_size_bytes": local_size,
+<<<<<<< HEAD
                 "date_count": len(local_dates),
                 "earliest_date": local_dates[-1] if local_dates else None,
                 "latest_date": local_dates[0] if local_dates else None,
+=======
+                "date_count": len(combined_dates),
+                "earliest_date": combined_dates[-1] if combined_dates else None,
+                "latest_date": combined_dates[0] if combined_dates else None,
+                "news": {
+                    "date_count": len(news_dates),
+                    "dates": news_dates[:10],  # 最近 10 天
+                },
+                "rss": {
+                    "date_count": len(rss_dates),
+                    "dates": rss_dates[:10],  # 最近 10 天
+                },
+>>>>>>> upstream/master
             }
 
             # 远程存储状态
@@ -350,10 +442,22 @@ class StorageSyncTools:
 
             return {
                 "success": True,
+<<<<<<< HEAD
                 "backend": storage_config.get("backend", "auto"),
                 "local": local_status,
                 "remote": remote_status,
                 "pull": pull_status,
+=======
+                "summary": {
+                    "description": "存储配置和状态信息",
+                    "backend": storage_config.get("backend", "auto")
+                },
+                "data": {
+                    "local": local_status,
+                    "remote": remote_status,
+                    "pull": pull_status
+                }
+>>>>>>> upstream/master
             }
 
         except MCPError as e:
@@ -384,24 +488,56 @@ class StorageSyncTools:
             日期列表字典
         """
         try:
+<<<<<<< HEAD
             result = {
                 "success": True,
+=======
+            data_result = {}
+            summary_info = {
+                "description": "可用日期列表",
+                "source": source
+>>>>>>> upstream/master
             }
 
             # 本地日期
             if source in ("local", "both"):
+<<<<<<< HEAD
                 local_dates = self._get_local_dates()
                 result["local"] = {
                     "dates": local_dates,
                     "count": len(local_dates),
                     "earliest": local_dates[-1] if local_dates else None,
                     "latest": local_dates[0] if local_dates else None,
+=======
+                all_dates = self._get_all_local_dates()
+                news_dates = all_dates["news"]
+                rss_dates = all_dates["rss"]
+                combined_dates = all_dates["all"]
+
+                data_result["local"] = {
+                    "dates": combined_dates,
+                    "count": len(combined_dates),
+                    "earliest": combined_dates[-1] if combined_dates else None,
+                    "latest": combined_dates[0] if combined_dates else None,
+                    "news": {
+                        "dates": news_dates,
+                        "count": len(news_dates),
+                    },
+                    "rss": {
+                        "dates": rss_dates,
+                        "count": len(rss_dates),
+                    },
+>>>>>>> upstream/master
                 }
 
             # 远程日期
             if source in ("remote", "both"):
                 if not self._has_remote_config():
+<<<<<<< HEAD
                     result["remote"] = {
+=======
+                    data_result["remote"] = {
+>>>>>>> upstream/master
                         "configured": False,
                         "dates": [],
                         "count": 0,
@@ -414,7 +550,11 @@ class StorageSyncTools:
                     if remote_backend:
                         try:
                             remote_dates = remote_backend.list_remote_dates()
+<<<<<<< HEAD
                             result["remote"] = {
+=======
+                            data_result["remote"] = {
+>>>>>>> upstream/master
                                 "configured": True,
                                 "dates": remote_dates,
                                 "count": len(remote_dates),
@@ -422,7 +562,11 @@ class StorageSyncTools:
                                 "latest": remote_dates[0] if remote_dates else None,
                             }
                         except Exception as e:
+<<<<<<< HEAD
                             result["remote"] = {
+=======
+                            data_result["remote"] = {
+>>>>>>> upstream/master
                                 "configured": True,
                                 "dates": [],
                                 "count": 0,
@@ -431,7 +575,11 @@ class StorageSyncTools:
                                 "error": str(e)
                             }
                     else:
+<<<<<<< HEAD
                         result["remote"] = {
+=======
+                        data_result["remote"] = {
+>>>>>>> upstream/master
                             "configured": True,
                             "dates": [],
                             "count": 0,
@@ -441,17 +589,33 @@ class StorageSyncTools:
                         }
 
             # 如果同时查询两者，计算差异
+<<<<<<< HEAD
             if source == "both" and "local" in result and "remote" in result:
                 local_set = set(result["local"]["dates"])
                 remote_set = set(result["remote"].get("dates", []))
 
                 result["comparison"] = {
+=======
+            if source == "both" and "local" in data_result and "remote" in data_result:
+                local_set = set(data_result["local"]["dates"])
+                remote_set = set(data_result["remote"].get("dates", []))
+
+                data_result["comparison"] = {
+>>>>>>> upstream/master
                     "only_local": sorted(list(local_set - remote_set), reverse=True),
                     "only_remote": sorted(list(remote_set - local_set), reverse=True),
                     "both": sorted(list(local_set & remote_set), reverse=True),
                 }
 
+<<<<<<< HEAD
             return result
+=======
+            return {
+                "success": True,
+                "summary": summary_info,
+                "data": data_result
+            }
+>>>>>>> upstream/master
 
         except MCPError as e:
             return {

@@ -259,6 +259,7 @@ def show_status():
         if pid1_cmdline:
             print(f"    📋 当前 PID 1: {pid1_cmdline}")
         print("    💡 建议操作:")
+<<<<<<< HEAD
         print("       • 重启容器: docker restart trend-radar")
         print("       • 检查容器日志: docker logs trend-radar")
 
@@ -268,6 +269,17 @@ def show_status():
     print("    • 查看实时日志: docker logs -f trend-radar")
     print("    • 手动执行测试: python manage.py run")
     print("    • 重启容器服务: docker restart trend-radar")
+=======
+        print("       • 重启容器: docker restart trendradar")
+        print("       • 检查容器日志: docker logs trendradar")
+
+    # 显示日志检查建议
+    print("  📋 运行状态检查:")
+    print("    • 查看完整容器日志: docker logs trendradar")
+    print("    • 查看实时日志: docker logs -f trendradar")
+    print("    • 手动执行测试: python manage.py run")
+    print("    • 重启容器服务: docker restart trendradar")
+>>>>>>> upstream/master
 
 
 def show_config():
@@ -275,6 +287,7 @@ def show_config():
     print("⚙️ 当前配置:")
 
     env_vars = [
+<<<<<<< HEAD
         "CRON_SCHEDULE",
         "RUN_MODE",
         "IMMEDIATE_RUN",
@@ -291,12 +304,40 @@ def show_config():
         "REMOTE_RETENTION_DAYS",
         "STORAGE_TXT_ENABLED",
         "STORAGE_HTML_ENABLED",
+=======
+        # 运行配置
+        "CRON_SCHEDULE",
+        "RUN_MODE",
+        "IMMEDIATE_RUN",
+        # 通知渠道
+        "FEISHU_WEBHOOK_URL",
+        "DINGTALK_WEBHOOK_URL",
+        "WEWORK_WEBHOOK_URL",
+        "WEWORK_MSG_TYPE",
+        "TELEGRAM_BOT_TOKEN",
+        "TELEGRAM_CHAT_ID",
+        "NTFY_SERVER_URL",
+        "NTFY_TOPIC",
+        "NTFY_TOKEN",
+        "BARK_URL",
+        "SLACK_WEBHOOK_URL",
+        # AI 分析配置
+        "AI_ANALYSIS_ENABLED",
+        "AI_API_KEY",
+        "AI_PROVIDER",
+        "AI_MODEL",
+        "AI_BASE_URL",
+        # 远程存储配置
+>>>>>>> upstream/master
         "S3_BUCKET_NAME",
         "S3_ACCESS_KEY_ID",
         "S3_ENDPOINT_URL",
         "S3_REGION",
+<<<<<<< HEAD
         "PULL_ENABLED",
         "PULL_DAYS",
+=======
+>>>>>>> upstream/master
     ]
 
     for var in env_vars:
@@ -333,6 +374,7 @@ def show_files():
         print("  📭 输出目录不存在")
         return
 
+<<<<<<< HEAD
     # 显示最近的文件
     date_dirs = sorted([d for d in output_dir.iterdir() if d.is_dir()], reverse=True)
 
@@ -371,6 +413,65 @@ def show_files():
                         )
                 else:
                     print(f"    📂 {subdir}: 空")
+=======
+    # 新结构：扁平化目录
+    # - output/news/*.db
+    # - output/rss/*.db
+    # - output/txt/{date}/*.txt
+    # - output/html/{date}/*.html
+
+    # 检查 news 数据库
+    news_dir = output_dir / "news"
+    if news_dir.exists():
+        db_files = sorted(news_dir.glob("*.db"), key=lambda x: x.name, reverse=True)
+        if db_files:
+            print(f"  💾 热榜数据库 (news/): {len(db_files)} 个")
+            for db_file in db_files[:5]:
+                mtime = time.ctime(db_file.stat().st_mtime)
+                size_kb = db_file.stat().st_size // 1024
+                print(f"    📀 {db_file.name} ({size_kb}KB, {mtime.split()[3][:5]})")
+            if len(db_files) > 5:
+                print(f"    ... 还有 {len(db_files) - 5} 个")
+
+    # 检查 RSS 数据库
+    rss_dir = output_dir / "rss"
+    if rss_dir.exists():
+        db_files = sorted(rss_dir.glob("*.db"), key=lambda x: x.name, reverse=True)
+        if db_files:
+            print(f"  📰 RSS 数据库 (rss/): {len(db_files)} 个")
+            for db_file in db_files[:5]:
+                mtime = time.ctime(db_file.stat().st_mtime)
+                size_kb = db_file.stat().st_size // 1024
+                print(f"    📀 {db_file.name} ({size_kb}KB, {mtime.split()[3][:5]})")
+            if len(db_files) > 5:
+                print(f"    ... 还有 {len(db_files) - 5} 个")
+
+    # 检查 TXT 快照目录
+    txt_dir = output_dir / "txt"
+    if txt_dir.exists():
+        date_dirs = sorted([d for d in txt_dir.iterdir() if d.is_dir()], reverse=True)
+        if date_dirs:
+            print(f"  📄 TXT 快照 (txt/): {len(date_dirs)} 天")
+            for date_dir in date_dirs[:3]:
+                txt_files = list(date_dir.glob("*.txt"))
+                if txt_files:
+                    recent = sorted(txt_files, key=lambda x: x.stat().st_mtime, reverse=True)[0]
+                    mtime = time.ctime(recent.stat().st_mtime)
+                    print(f"    📅 {date_dir.name}: {len(txt_files)} 个文件 (最新: {mtime.split()[3][:5]})")
+
+    # 检查 HTML 报告目录
+    html_dir = output_dir / "html"
+    if html_dir.exists():
+        date_dirs = sorted([d for d in html_dir.iterdir() if d.is_dir()], reverse=True)
+        if date_dirs:
+            print(f"  🌐 HTML 报告 (html/): {len(date_dirs)} 天")
+            for date_dir in date_dirs[:3]:
+                html_files = list(date_dir.glob("*.html"))
+                if html_files:
+                    recent = sorted(html_files, key=lambda x: x.stat().st_mtime, reverse=True)[0]
+                    mtime = time.ctime(recent.stat().st_mtime)
+                    print(f"    📅 {date_dir.name}: {len(html_files)} 个文件 (最新: {mtime.split()[3][:5]})")
+>>>>>>> upstream/master
 
 
 def show_logs():
@@ -390,13 +491,21 @@ def show_logs():
                 subprocess.run(["tail", "-f", log_file], check=True)
                 break
         else:
+<<<<<<< HEAD
             print("📋 无法找到标准日志文件，建议使用: docker logs trend-radar")
+=======
+            print("📋 无法找到标准日志文件，建议使用: docker logs trendradar")
+>>>>>>> upstream/master
             
     except KeyboardInterrupt:
         print("\n👋 退出日志查看")
     except Exception as e:
         print(f"❌ 查看日志失败: {e}")
+<<<<<<< HEAD
         print("💡 建议使用: docker logs trend-radar")
+=======
+        print("💡 建议使用: docker logs trendradar")
+>>>>>>> upstream/master
 
 
 def restart_supercronic():
@@ -413,6 +522,7 @@ def restart_supercronic():
         if "supercronic" in pid1_cmdline.lower():
             print("  ✅ PID 1 是 supercronic")
             print("  💡 要重启 supercronic，需要重启整个容器:")
+<<<<<<< HEAD
             print("    docker restart trend-radar")
         else:
             print("  ❌ PID 1 不是 supercronic，这是异常状态")
@@ -421,6 +531,16 @@ def restart_supercronic():
     except Exception as e:
         print(f"  ❌ 无法检查 PID 1: {e}")
         print("  💡 建议重启容器: docker restart trend-radar")
+=======
+            print("    docker restart trendradar")
+        else:
+            print("  ❌ PID 1 不是 supercronic，这是异常状态")
+            print("  💡 建议重启容器以修复问题:")
+            print("    docker restart trendradar")
+    except Exception as e:
+        print(f"  ❌ 无法检查 PID 1: {e}")
+        print("  💡 建议重启容器: docker restart trendradar")
+>>>>>>> upstream/master
 
 
 def start_webserver():
@@ -581,10 +701,17 @@ def show_help():
   python manage.py start_webserver
 
   # 在宿主机执行
+<<<<<<< HEAD
   docker exec -it trend-radar python manage.py run
   docker exec -it trend-radar python manage.py status
   docker exec -it trend-radar python manage.py start_webserver
   docker logs trend-radar
+=======
+  docker exec -it trendradar python manage.py run
+  docker exec -it trendradar python manage.py status
+  docker exec -it trendradar python manage.py start_webserver
+  docker logs trendradar
+>>>>>>> upstream/master
 
 💡 常用操作指南:
   1. 检查运行状态: status
@@ -598,11 +725,19 @@ def show_help():
 
   3. 查看日志: logs
      - 实时监控运行情况
+<<<<<<< HEAD
      - 也可使用: docker logs trend-radar
 
   4. 重启服务: restart
      - 由于 supercronic 是 PID 1，需要重启整个容器
      - 使用: docker restart trend-radar
+=======
+     - 也可使用: docker logs trendradar
+
+  4. 重启服务: restart
+     - 由于 supercronic 是 PID 1，需要重启整个容器
+     - 使用: docker restart trendradar
+>>>>>>> upstream/master
 
   5. Web 服务器管理:
      - 启动: start_webserver

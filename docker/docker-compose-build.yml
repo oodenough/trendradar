@@ -1,9 +1,17 @@
 services:
+<<<<<<< HEAD
   trend-radar:
     build:
       context: ..
       dockerfile: docker/Dockerfile
     container_name: trend-radar
+=======
+  trendradar:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+    container_name: trendradar
+>>>>>>> upstream/master
     restart: unless-stopped
 
     ports:
@@ -15,6 +23,7 @@ services:
 
     environment:
       - TZ=Asia/Shanghai
+<<<<<<< HEAD
       # 核心配置
       - ENABLE_CRAWLER=${ENABLE_CRAWLER:-}
       - ENABLE_NOTIFICATION=${ENABLE_NOTIFICATION:-}
@@ -32,6 +41,11 @@ services:
       - PUSH_WINDOW_START=${PUSH_WINDOW_START:-}
       - PUSH_WINDOW_END=${PUSH_WINDOW_END:-}
       - PUSH_WINDOW_ONCE_PER_DAY=${PUSH_WINDOW_ONCE_PER_DAY:-}
+=======
+      # Web 服务器
+      - ENABLE_WEBSERVER=${ENABLE_WEBSERVER:-false}
+      - WEBSERVER_PORT=${WEBSERVER_PORT:-8080}
+>>>>>>> upstream/master
       # 通知渠道
       - FEISHU_WEBHOOK_URL=${FEISHU_WEBHOOK_URL:-}
       - TELEGRAM_BOT_TOKEN=${TELEGRAM_BOT_TOKEN:-}
@@ -53,18 +67,30 @@ services:
       - BARK_URL=${BARK_URL:-}
       # Slack配置
       - SLACK_WEBHOOK_URL=${SLACK_WEBHOOK_URL:-}
+<<<<<<< HEAD
       # 存储配置
       - STORAGE_BACKEND=${STORAGE_BACKEND:-auto}
       - LOCAL_RETENTION_DAYS=${LOCAL_RETENTION_DAYS:-0}
       - REMOTE_RETENTION_DAYS=${REMOTE_RETENTION_DAYS:-0}
       - STORAGE_TXT_ENABLED=${STORAGE_TXT_ENABLED:-true}
       - STORAGE_HTML_ENABLED=${STORAGE_HTML_ENABLED:-true}
+=======
+      # 通用Webhook配置
+      - GENERIC_WEBHOOK_URL=${GENERIC_WEBHOOK_URL:-}
+      - GENERIC_WEBHOOK_TEMPLATE=${GENERIC_WEBHOOK_TEMPLATE:-}
+      # AI 配置（ai_analysis 和 ai_translation 共享模型配置）
+      - AI_ANALYSIS_ENABLED=${AI_ANALYSIS_ENABLED:-false}
+      - AI_API_KEY=${AI_API_KEY:-}
+      - AI_MODEL=${AI_MODEL:-}
+      - AI_API_BASE=${AI_API_BASE:-}
+>>>>>>> upstream/master
       # 远程存储配置（S3 兼容协议）
       - S3_ENDPOINT_URL=${S3_ENDPOINT_URL:-}
       - S3_BUCKET_NAME=${S3_BUCKET_NAME:-}
       - S3_ACCESS_KEY_ID=${S3_ACCESS_KEY_ID:-}
       - S3_SECRET_ACCESS_KEY=${S3_SECRET_ACCESS_KEY:-}
       - S3_REGION=${S3_REGION:-}
+<<<<<<< HEAD
       # 数据拉取配置
       - PULL_ENABLED=${PULL_ENABLED:-false}
       - PULL_DAYS=${PULL_DAYS:-7}
@@ -78,6 +104,18 @@ services:
       context: ..
       dockerfile: docker/Dockerfile.mcp
     container_name: trend-radar-mcp
+=======
+      # 运行模式
+      - CRON_SCHEDULE=${CRON_SCHEDULE:-*/30 * * * *}
+      - RUN_MODE=${RUN_MODE:-cron}
+      - IMMEDIATE_RUN=${IMMEDIATE_RUN:-true}
+
+  trendradar-mcp:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile.mcp
+    container_name: trendradar-mcp
+>>>>>>> upstream/master
     restart: unless-stopped
 
     ports:

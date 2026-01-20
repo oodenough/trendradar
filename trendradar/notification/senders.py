@@ -17,13 +17,21 @@
 
 import smtplib
 import time
+<<<<<<< HEAD
+=======
+import json
+>>>>>>> upstream/master
 from datetime import datetime
 from email.header import Header
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from email.utils import formataddr, formatdate, make_msgid
 from pathlib import Path
+<<<<<<< HEAD
 from typing import Callable, Dict, List, Optional
+=======
+from typing import Any, Callable, Dict, List, Optional
+>>>>>>> upstream/master
 from urllib.parse import urlparse
 
 import requests
@@ -32,6 +40,22 @@ from .batch import add_batch_headers, get_max_batch_header_size
 from .formatters import convert_markdown_to_mrkdwn, strip_markdown
 
 
+<<<<<<< HEAD
+=======
+def _render_ai_analysis(ai_analysis: Any, channel: str) -> str:
+    """渲染 AI 分析内容为指定渠道格式"""
+    if not ai_analysis:
+        return ""
+
+    try:
+        from trendradar.ai.formatter import get_ai_analysis_renderer
+        renderer = get_ai_analysis_renderer(channel)
+        return renderer(ai_analysis)
+    except ImportError:
+        return ""
+
+
+>>>>>>> upstream/master
 # === SMTP 邮件配置 ===
 SMTP_CONFIGS = {
     # Gmail（使用 STARTTLS）
@@ -53,6 +77,13 @@ SMTP_CONFIGS = {
     "189.cn": {"server": "smtp.189.cn", "port": 465, "encryption": "SSL"},
     # 阿里云邮箱（使用 TLS）
     "aliyun.com": {"server": "smtp.aliyun.com", "port": 465, "encryption": "TLS"},
+<<<<<<< HEAD
+=======
+    # Yandex邮箱（使用 TLS）
+    "yandex.com": {"server": "smtp.yandex.com", "port": 465, "encryption": "TLS"},
+    # iCloud邮箱（使用 SSL）
+    "icloud.com": {"server": "smtp.mail.me.com", "port": 587, "encryption": "SSL"},
+>>>>>>> upstream/master
 }
 
 
@@ -69,9 +100,20 @@ def send_to_feishu(
     batch_interval: float = 1.0,
     split_content_func: Callable = None,
     get_time_func: Callable = None,
+<<<<<<< HEAD
 ) -> bool:
     """
     发送到飞书（支持分批发送）
+=======
+    rss_items: Optional[list] = None,
+    rss_new_items: Optional[list] = None,
+    ai_analysis: Any = None,
+    display_regions: Optional[Dict] = None,
+    standalone_data: Optional[Dict] = None,
+) -> bool:
+    """
+    发送到飞书（支持分批发送，支持热榜+RSS合并+独立展示区）
+>>>>>>> upstream/master
 
     Args:
         webhook_url: 飞书 Webhook URL
@@ -85,6 +127,11 @@ def send_to_feishu(
         batch_interval: 批次发送间隔（秒）
         split_content_func: 内容分批函数
         get_time_func: 获取当前时间的函数
+<<<<<<< HEAD
+=======
+        rss_items: RSS 统计条目列表（可选，用于合并推送）
+        rss_new_items: RSS 新增条目列表（可选，用于新增区块）
+>>>>>>> upstream/master
 
     Returns:
         bool: 发送是否成功
@@ -97,6 +144,24 @@ def send_to_feishu(
     # 日志前缀
     log_prefix = f"飞书{account_label}" if account_label else "飞书"
 
+<<<<<<< HEAD
+=======
+    # 渲染 AI 分析内容（如果有）
+    ai_content = None
+    ai_stats = None
+    if ai_analysis:
+        ai_content = _render_ai_analysis(ai_analysis, "feishu")
+        # 提取 AI 分析统计数据（只要 AI 分析成功就显示）
+        if getattr(ai_analysis, "success", False):
+            ai_stats = {
+                "total_news": getattr(ai_analysis, "total_news", 0),
+                "analyzed_news": getattr(ai_analysis, "analyzed_news", 0),
+                "max_news_limit": getattr(ai_analysis, "max_news_limit", 0),
+                "hotlist_count": getattr(ai_analysis, "hotlist_count", 0),
+                "rss_count": getattr(ai_analysis, "rss_count", 0),
+            }
+
+>>>>>>> upstream/master
     # 预留批次头部空间，避免添加头部后超限
     header_reserve = get_max_batch_header_size("feishu")
     batches = split_content_func(
@@ -105,6 +170,15 @@ def send_to_feishu(
         update_info,
         max_bytes=batch_size - header_reserve,
         mode=mode,
+<<<<<<< HEAD
+=======
+        rss_items=rss_items,
+        rss_new_items=rss_new_items,
+        ai_content=ai_content,
+        standalone_data=standalone_data,
+        ai_stats=ai_stats,
+        report_type=report_type,
+>>>>>>> upstream/master
     )
 
     # 统一添加批次头部（已预留空间，不会超限）
@@ -119,6 +193,7 @@ def send_to_feishu(
             f"发送{log_prefix}第 {i}/{len(batches)} 批次，大小：{content_size} 字节 [{report_type}]"
         )
 
+<<<<<<< HEAD
         total_titles = sum(
             len(stat["titles"]) for stat in report_data["stats"] if stat["count"] > 0
         )
@@ -130,6 +205,12 @@ def send_to_feishu(
                 "total_titles": total_titles,
                 "timestamp": now.strftime("%Y-%m-%d %H:%M:%S"),
                 "report_type": report_type,
+=======
+        # 飞书 webhook 只显示 content.text，所有信息都整合到 text 中
+        payload = {
+            "msg_type": "text",
+            "content": {
+>>>>>>> upstream/master
                 "text": batch_content,
             },
         }
@@ -162,6 +243,10 @@ def send_to_feishu(
             return False
 
     print(f"{log_prefix}所有 {len(batches)} 批次发送完成 [{report_type}]")
+<<<<<<< HEAD
+=======
+
+>>>>>>> upstream/master
     return True
 
 
@@ -177,9 +262,20 @@ def send_to_dingtalk(
     batch_size: int = 20000,
     batch_interval: float = 1.0,
     split_content_func: Callable = None,
+<<<<<<< HEAD
 ) -> bool:
     """
     发送到钉钉（支持分批发送）
+=======
+    rss_items: Optional[list] = None,
+    rss_new_items: Optional[list] = None,
+    ai_analysis: Any = None,
+    display_regions: Optional[Dict] = None,
+    standalone_data: Optional[Dict] = None,
+) -> bool:
+    """
+    发送到钉钉（支持分批发送，支持热榜+RSS合并+独立展示区）
+>>>>>>> upstream/master
 
     Args:
         webhook_url: 钉钉 Webhook URL
@@ -192,6 +288,11 @@ def send_to_dingtalk(
         batch_size: 批次大小（字节）
         batch_interval: 批次发送间隔（秒）
         split_content_func: 内容分批函数
+<<<<<<< HEAD
+=======
+        rss_items: RSS 统计条目列表（可选，用于合并推送）
+        rss_new_items: RSS 新增条目列表（可选，用于新增区块）
+>>>>>>> upstream/master
 
     Returns:
         bool: 发送是否成功
@@ -204,6 +305,24 @@ def send_to_dingtalk(
     # 日志前缀
     log_prefix = f"钉钉{account_label}" if account_label else "钉钉"
 
+<<<<<<< HEAD
+=======
+    # 渲染 AI 分析内容（如果有）
+    ai_content = None
+    ai_stats = None
+    if ai_analysis:
+        ai_content = _render_ai_analysis(ai_analysis, "dingtalk")
+        # 提取 AI 分析统计数据（只要 AI 分析成功就显示）
+        if getattr(ai_analysis, "success", False):
+            ai_stats = {
+                "total_news": getattr(ai_analysis, "total_news", 0),
+                "analyzed_news": getattr(ai_analysis, "analyzed_news", 0),
+                "max_news_limit": getattr(ai_analysis, "max_news_limit", 0),
+                "hotlist_count": getattr(ai_analysis, "hotlist_count", 0),
+                "rss_count": getattr(ai_analysis, "rss_count", 0),
+            }
+
+>>>>>>> upstream/master
     # 预留批次头部空间，避免添加头部后超限
     header_reserve = get_max_batch_header_size("dingtalk")
     batches = split_content_func(
@@ -212,6 +331,15 @@ def send_to_dingtalk(
         update_info,
         max_bytes=batch_size - header_reserve,
         mode=mode,
+<<<<<<< HEAD
+=======
+        rss_items=rss_items,
+        rss_new_items=rss_new_items,
+        ai_content=ai_content,
+        standalone_data=standalone_data,
+        ai_stats=ai_stats,
+        report_type=report_type,
+>>>>>>> upstream/master
     )
 
     # 统一添加批次头部（已预留空间，不会超限）
@@ -260,6 +388,10 @@ def send_to_dingtalk(
             return False
 
     print(f"{log_prefix}所有 {len(batches)} 批次发送完成 [{report_type}]")
+<<<<<<< HEAD
+=======
+
+>>>>>>> upstream/master
     return True
 
 
@@ -276,9 +408,20 @@ def send_to_wework(
     batch_interval: float = 1.0,
     msg_type: str = "markdown",
     split_content_func: Callable = None,
+<<<<<<< HEAD
 ) -> bool:
     """
     发送到企业微信（支持分批发送，支持 markdown 和 text 两种格式）
+=======
+    rss_items: Optional[list] = None,
+    rss_new_items: Optional[list] = None,
+    ai_analysis: Any = None,
+    display_regions: Optional[Dict] = None,
+    standalone_data: Optional[Dict] = None,
+) -> bool:
+    """
+    发送到企业微信（支持分批发送，支持 markdown 和 text 两种格式，支持热榜+RSS合并+独立展示区）
+>>>>>>> upstream/master
 
     Args:
         webhook_url: 企业微信 Webhook URL
@@ -292,6 +435,11 @@ def send_to_wework(
         batch_interval: 批次发送间隔（秒）
         msg_type: 消息类型 (markdown/text)
         split_content_func: 内容分批函数
+<<<<<<< HEAD
+=======
+        rss_items: RSS 统计条目列表（可选，用于合并推送）
+        rss_new_items: RSS 新增条目列表（可选，用于新增区块）
+>>>>>>> upstream/master
 
     Returns:
         bool: 发送是否成功
@@ -315,10 +463,38 @@ def send_to_wework(
     # text 模式使用 wework_text，markdown 模式使用 wework
     header_format_type = "wework_text" if is_text_mode else "wework"
 
+<<<<<<< HEAD
     # 获取分批内容，预留批次头部空间
     header_reserve = get_max_batch_header_size(header_format_type)
     batches = split_content_func(
         report_data, "wework", update_info, max_bytes=batch_size - header_reserve, mode=mode
+=======
+    # 渲染 AI 分析内容（如果有）
+    ai_content = None
+    ai_stats = None
+    if ai_analysis:
+        ai_content = _render_ai_analysis(ai_analysis, "wework")
+        # 提取 AI 分析统计数据（只要 AI 分析成功就显示）
+        if getattr(ai_analysis, "success", False):
+            ai_stats = {
+                "total_news": getattr(ai_analysis, "total_news", 0),
+                "analyzed_news": getattr(ai_analysis, "analyzed_news", 0),
+                "max_news_limit": getattr(ai_analysis, "max_news_limit", 0),
+                "hotlist_count": getattr(ai_analysis, "hotlist_count", 0),
+                "rss_count": getattr(ai_analysis, "rss_count", 0),
+            }
+
+    # 获取分批内容，预留批次头部空间
+    header_reserve = get_max_batch_header_size(header_format_type)
+    batches = split_content_func(
+        report_data, "wework", update_info, max_bytes=batch_size - header_reserve, mode=mode,
+        rss_items=rss_items,
+        rss_new_items=rss_new_items,
+        ai_content=ai_content,
+        standalone_data=standalone_data,
+        ai_stats=ai_stats,
+        report_type=report_type,
+>>>>>>> upstream/master
     )
 
     # 统一添加批次头部（已预留空间，不会超限）
@@ -369,6 +545,10 @@ def send_to_wework(
             return False
 
     print(f"{log_prefix}所有 {len(batches)} 批次发送完成 [{report_type}]")
+<<<<<<< HEAD
+=======
+
+>>>>>>> upstream/master
     return True
 
 
@@ -385,9 +565,20 @@ def send_to_telegram(
     batch_size: int = 4000,
     batch_interval: float = 1.0,
     split_content_func: Callable = None,
+<<<<<<< HEAD
 ) -> bool:
     """
     发送到 Telegram（支持分批发送）
+=======
+    rss_items: Optional[list] = None,
+    rss_new_items: Optional[list] = None,
+    ai_analysis: Any = None,
+    display_regions: Optional[Dict] = None,
+    standalone_data: Optional[Dict] = None,
+) -> bool:
+    """
+    发送到 Telegram（支持分批发送，支持热榜+RSS合并+独立展示区）
+>>>>>>> upstream/master
 
     Args:
         bot_token: Telegram Bot Token
@@ -401,6 +592,11 @@ def send_to_telegram(
         batch_size: 批次大小（字节）
         batch_interval: 批次发送间隔（秒）
         split_content_func: 内容分批函数
+<<<<<<< HEAD
+=======
+        rss_items: RSS 统计条目列表（可选，用于合并推送）
+        rss_new_items: RSS 新增条目列表（可选，用于新增区块）
+>>>>>>> upstream/master
 
     Returns:
         bool: 发送是否成功
@@ -415,10 +611,38 @@ def send_to_telegram(
     # 日志前缀
     log_prefix = f"Telegram{account_label}" if account_label else "Telegram"
 
+<<<<<<< HEAD
     # 获取分批内容，预留批次头部空间
     header_reserve = get_max_batch_header_size("telegram")
     batches = split_content_func(
         report_data, "telegram", update_info, max_bytes=batch_size - header_reserve, mode=mode
+=======
+    # 渲染 AI 分析内容（如果有）
+    ai_content = None
+    ai_stats = None
+    if ai_analysis:
+        ai_content = _render_ai_analysis(ai_analysis, "telegram")
+        # 提取 AI 分析统计数据（只要 AI 分析成功就显示）
+        if getattr(ai_analysis, "success", False):
+            ai_stats = {
+                "total_news": getattr(ai_analysis, "total_news", 0),
+                "analyzed_news": getattr(ai_analysis, "analyzed_news", 0),
+                "max_news_limit": getattr(ai_analysis, "max_news_limit", 0),
+                "hotlist_count": getattr(ai_analysis, "hotlist_count", 0),
+                "rss_count": getattr(ai_analysis, "rss_count", 0),
+            }
+
+    # 获取分批内容，预留批次头部空间
+    header_reserve = get_max_batch_header_size("telegram")
+    batches = split_content_func(
+        report_data, "telegram", update_info, max_bytes=batch_size - header_reserve, mode=mode,
+        rss_items=rss_items,
+        rss_new_items=rss_new_items,
+        ai_content=ai_content,
+        standalone_data=standalone_data,
+        ai_stats=ai_stats,
+        report_type=report_type,
+>>>>>>> upstream/master
     )
 
     # 统一添加批次头部（已预留空间，不会超限）
@@ -466,6 +690,10 @@ def send_to_telegram(
             return False
 
     print(f"{log_prefix}所有 {len(batches)} 批次发送完成 [{report_type}]")
+<<<<<<< HEAD
+=======
+
+>>>>>>> upstream/master
     return True
 
 
@@ -495,6 +723,12 @@ def send_to_email(
 
     Returns:
         bool: 发送是否成功
+<<<<<<< HEAD
+=======
+
+    Note:
+        AI 分析内容已在 HTML 生成时嵌入，无需再追加
+>>>>>>> upstream/master
     """
     try:
         if not html_file_path or not Path(html_file_path).exists():
@@ -638,9 +872,20 @@ def send_to_ntfy(
     *,
     batch_size: int = 3800,
     split_content_func: Callable = None,
+<<<<<<< HEAD
 ) -> bool:
     """
     发送到 ntfy（支持分批发送，严格遵守4KB限制）
+=======
+    rss_items: Optional[list] = None,
+    rss_new_items: Optional[list] = None,
+    ai_analysis: Any = None,
+    display_regions: Optional[Dict] = None,
+    standalone_data: Optional[Dict] = None,
+) -> bool:
+    """
+    发送到 ntfy（支持分批发送，严格遵守4KB限制，支持热榜+RSS合并+独立展示区）
+>>>>>>> upstream/master
 
     Args:
         server_url: ntfy 服务器 URL
@@ -654,6 +899,11 @@ def send_to_ntfy(
         account_label: 账号标签（多账号时显示）
         batch_size: 批次大小（字节）
         split_content_func: 内容分批函数
+<<<<<<< HEAD
+=======
+        rss_items: RSS 统计条目列表（可选，用于合并推送）
+        rss_new_items: RSS 新增条目列表（可选，用于新增区块）
+>>>>>>> upstream/master
 
     Returns:
         bool: 发送是否成功
@@ -692,10 +942,38 @@ def send_to_ntfy(
     if proxy_url:
         proxies = {"http": proxy_url, "https": proxy_url}
 
+<<<<<<< HEAD
     # 获取分批内容，预留批次头部空间
     header_reserve = get_max_batch_header_size("ntfy")
     batches = split_content_func(
         report_data, "ntfy", update_info, max_bytes=batch_size - header_reserve, mode=mode
+=======
+    # 渲染 AI 分析内容（如果有），合并到主内容中
+    ai_content = None
+    ai_stats = None
+    if ai_analysis:
+        ai_content = _render_ai_analysis(ai_analysis, "ntfy")
+        # 提取 AI 分析统计数据（只要 AI 分析成功就显示）
+        if getattr(ai_analysis, "success", False):
+            ai_stats = {
+                "total_news": getattr(ai_analysis, "total_news", 0),
+                "analyzed_news": getattr(ai_analysis, "analyzed_news", 0),
+                "max_news_limit": getattr(ai_analysis, "max_news_limit", 0),
+                "hotlist_count": getattr(ai_analysis, "hotlist_count", 0),
+                "rss_count": getattr(ai_analysis, "rss_count", 0),
+            }
+
+    # 获取分批内容，预留批次头部空间
+    header_reserve = get_max_batch_header_size("ntfy")
+    batches = split_content_func(
+        report_data, "ntfy", update_info, max_bytes=batch_size - header_reserve, mode=mode,
+        rss_items=rss_items,
+        rss_new_items=rss_new_items,
+        ai_content=ai_content,
+        standalone_data=standalone_data,
+        ai_stats=ai_stats,
+        report_type=report_type,
+>>>>>>> upstream/master
     )
 
     # 统一添加批次头部（已预留空间，不会超限）
@@ -791,14 +1069,24 @@ def send_to_ntfy(
     # 判断整体发送是否成功
     if success_count == total_batches:
         print(f"{log_prefix}所有 {total_batches} 批次发送完成 [{report_type}]")
+<<<<<<< HEAD
         return True
     elif success_count > 0:
         print(f"{log_prefix}部分发送成功：{success_count}/{total_batches} 批次 [{report_type}]")
         return True  # 部分成功也视为成功
+=======
+    elif success_count > 0:
+        print(f"{log_prefix}部分发送成功：{success_count}/{total_batches} 批次 [{report_type}]")
+>>>>>>> upstream/master
     else:
         print(f"{log_prefix}发送完全失败 [{report_type}]")
         return False
 
+<<<<<<< HEAD
+=======
+    return True
+
+>>>>>>> upstream/master
 
 def send_to_bark(
     bark_url: str,
@@ -812,9 +1100,20 @@ def send_to_bark(
     batch_size: int = 3600,
     batch_interval: float = 1.0,
     split_content_func: Callable = None,
+<<<<<<< HEAD
 ) -> bool:
     """
     发送到 Bark（支持分批发送，使用 markdown 格式）
+=======
+    rss_items: Optional[list] = None,
+    rss_new_items: Optional[list] = None,
+    ai_analysis: Any = None,
+    display_regions: Optional[Dict] = None,
+    standalone_data: Optional[Dict] = None,
+) -> bool:
+    """
+    发送到 Bark（支持分批发送，使用 markdown 格式，支持热榜+RSS合并+独立展示区）
+>>>>>>> upstream/master
 
     Args:
         bark_url: Bark URL（包含 device_key）
@@ -827,6 +1126,11 @@ def send_to_bark(
         batch_size: 批次大小（字节）
         batch_interval: 批次发送间隔（秒）
         split_content_func: 内容分批函数
+<<<<<<< HEAD
+=======
+        rss_items: RSS 统计条目列表（可选，用于合并推送）
+        rss_new_items: RSS 新增条目列表（可选，用于新增区块）
+>>>>>>> upstream/master
 
     Returns:
         bool: 发送是否成功
@@ -850,10 +1154,38 @@ def send_to_bark(
     # 构建正确的 API 端点
     api_endpoint = f"{parsed_url.scheme}://{parsed_url.netloc}/push"
 
+<<<<<<< HEAD
     # 获取分批内容，预留批次头部空间
     header_reserve = get_max_batch_header_size("bark")
     batches = split_content_func(
         report_data, "bark", update_info, max_bytes=batch_size - header_reserve, mode=mode
+=======
+    # 渲染 AI 分析内容（如果有），合并到主内容中
+    ai_content = None
+    ai_stats = None
+    if ai_analysis:
+        ai_content = _render_ai_analysis(ai_analysis, "bark")
+        # 提取 AI 分析统计数据（只要 AI 分析成功就显示）
+        if getattr(ai_analysis, "success", False):
+            ai_stats = {
+                "total_news": getattr(ai_analysis, "total_news", 0),
+                "analyzed_news": getattr(ai_analysis, "analyzed_news", 0),
+                "max_news_limit": getattr(ai_analysis, "max_news_limit", 0),
+                "hotlist_count": getattr(ai_analysis, "hotlist_count", 0),
+                "rss_count": getattr(ai_analysis, "rss_count", 0),
+            }
+
+    # 获取分批内容，预留批次头部空间
+    header_reserve = get_max_batch_header_size("bark")
+    batches = split_content_func(
+        report_data, "bark", update_info, max_bytes=batch_size - header_reserve, mode=mode,
+        rss_items=rss_items,
+        rss_new_items=rss_new_items,
+        ai_content=ai_content,
+        standalone_data=standalone_data,
+        ai_stats=ai_stats,
+        report_type=report_type,
+>>>>>>> upstream/master
     )
 
     # 统一添加批次头部（已预留空间，不会超限）
@@ -936,14 +1268,24 @@ def send_to_bark(
     # 判断整体发送是否成功
     if success_count == total_batches:
         print(f"{log_prefix}所有 {total_batches} 批次发送完成 [{report_type}]")
+<<<<<<< HEAD
         return True
     elif success_count > 0:
         print(f"{log_prefix}部分发送成功：{success_count}/{total_batches} 批次 [{report_type}]")
         return True  # 部分成功也视为成功
+=======
+    elif success_count > 0:
+        print(f"{log_prefix}部分发送成功：{success_count}/{total_batches} 批次 [{report_type}]")
+>>>>>>> upstream/master
     else:
         print(f"{log_prefix}发送完全失败 [{report_type}]")
         return False
 
+<<<<<<< HEAD
+=======
+    return True
+
+>>>>>>> upstream/master
 
 def send_to_slack(
     webhook_url: str,
@@ -957,9 +1299,20 @@ def send_to_slack(
     batch_size: int = 4000,
     batch_interval: float = 1.0,
     split_content_func: Callable = None,
+<<<<<<< HEAD
 ) -> bool:
     """
     发送到 Slack（支持分批发送，使用 mrkdwn 格式）
+=======
+    rss_items: Optional[list] = None,
+    rss_new_items: Optional[list] = None,
+    ai_analysis: Any = None,
+    display_regions: Optional[Dict] = None,
+    standalone_data: Optional[Dict] = None,
+) -> bool:
+    """
+    发送到 Slack（支持分批发送，使用 mrkdwn 格式，支持热榜+RSS合并+独立展示区）
+>>>>>>> upstream/master
 
     Args:
         webhook_url: Slack Webhook URL
@@ -972,6 +1325,11 @@ def send_to_slack(
         batch_size: 批次大小（字节）
         batch_interval: 批次发送间隔（秒）
         split_content_func: 内容分批函数
+<<<<<<< HEAD
+=======
+        rss_items: RSS 统计条目列表（可选，用于合并推送）
+        rss_new_items: RSS 新增条目列表（可选，用于新增区块）
+>>>>>>> upstream/master
 
     Returns:
         bool: 发送是否成功
@@ -984,10 +1342,38 @@ def send_to_slack(
     # 日志前缀
     log_prefix = f"Slack{account_label}" if account_label else "Slack"
 
+<<<<<<< HEAD
     # 获取分批内容，预留批次头部空间
     header_reserve = get_max_batch_header_size("slack")
     batches = split_content_func(
         report_data, "slack", update_info, max_bytes=batch_size - header_reserve, mode=mode
+=======
+    # 渲染 AI 分析内容（如果有），合并到主内容中
+    ai_content = None
+    ai_stats = None
+    if ai_analysis:
+        ai_content = _render_ai_analysis(ai_analysis, "slack")
+        # 提取 AI 分析统计数据（只要 AI 分析成功就显示）
+        if getattr(ai_analysis, "success", False):
+            ai_stats = {
+                "total_news": getattr(ai_analysis, "total_news", 0),
+                "analyzed_news": getattr(ai_analysis, "analyzed_news", 0),
+                "max_news_limit": getattr(ai_analysis, "max_news_limit", 0),
+                "hotlist_count": getattr(ai_analysis, "hotlist_count", 0),
+                "rss_count": getattr(ai_analysis, "rss_count", 0),
+            }
+
+    # 获取分批内容，预留批次头部空间
+    header_reserve = get_max_batch_header_size("slack")
+    batches = split_content_func(
+        report_data, "slack", update_info, max_bytes=batch_size - header_reserve, mode=mode,
+        rss_items=rss_items,
+        rss_new_items=rss_new_items,
+        ai_content=ai_content,
+        standalone_data=standalone_data,
+        ai_stats=ai_stats,
+        report_type=report_type,
+>>>>>>> upstream/master
     )
 
     # 统一添加批次头部（已预留空间，不会超限）
@@ -1030,4 +1416,144 @@ def send_to_slack(
             return False
 
     print(f"{log_prefix}所有 {len(batches)} 批次发送完成 [{report_type}]")
+<<<<<<< HEAD
+=======
+
+    return True
+
+
+def send_to_generic_webhook(
+    webhook_url: str,
+    payload_template: Optional[str],
+    report_data: Dict,
+    report_type: str,
+    update_info: Optional[Dict] = None,
+    proxy_url: Optional[str] = None,
+    mode: str = "daily",
+    account_label: str = "",
+    *,
+    batch_size: int = 4000,
+    batch_interval: float = 1.0,
+    split_content_func: Optional[Callable] = None,
+    rss_items: Optional[list] = None,
+    rss_new_items: Optional[list] = None,
+    ai_analysis: Any = None,
+    display_regions: Optional[Dict] = None,
+    standalone_data: Optional[Dict] = None,
+) -> bool:
+    """
+    发送到通用 Webhook（支持分批发送，支持自定义 JSON 模板，支持热榜+RSS合并+独立展示区）
+
+    Args:
+        webhook_url: Webhook URL
+        payload_template: JSON 模板字符串，支持 {title} 和 {content} 占位符
+        report_data: 报告数据
+        report_type: 报告类型
+        update_info: 更新信息（可选）
+        proxy_url: 代理 URL（可选）
+        mode: 报告模式 (daily/current)
+        account_label: 账号标签（多账号时显示）
+        batch_size: 批次大小（字节）
+        batch_interval: 批次发送间隔（秒）
+        split_content_func: 内容分批函数
+        rss_items: RSS 统计条目列表（可选，用于合并推送）
+        rss_new_items: RSS 新增条目列表（可选，用于新增区块）
+
+    Returns:
+        bool: 发送是否成功
+    """
+    if split_content_func is None:
+        raise ValueError("split_content_func is required")
+
+    headers = {"Content-Type": "application/json"}
+    proxies = None
+    if proxy_url:
+        proxies = {"http": proxy_url, "https": proxy_url}
+
+    # 日志前缀
+    log_prefix = f"通用Webhook{account_label}" if account_label else "通用Webhook"
+
+    # 渲染 AI 分析内容（如果有）
+    ai_content = None
+    ai_stats = None
+    if ai_analysis:
+        # 通用 Webhook 使用 markdown 格式渲染 AI 分析
+        ai_content = _render_ai_analysis(ai_analysis, "wework")
+        # 提取 AI 分析统计数据
+        if getattr(ai_analysis, "success", False):
+            ai_stats = {
+                "total_news": getattr(ai_analysis, "total_news", 0),
+                "analyzed_news": getattr(ai_analysis, "analyzed_news", 0),
+                "max_news_limit": getattr(ai_analysis, "max_news_limit", 0),
+                "hotlist_count": getattr(ai_analysis, "hotlist_count", 0),
+                "rss_count": getattr(ai_analysis, "rss_count", 0),
+            }
+
+    # 获取分批内容
+    # 使用 'wework' 作为 format_type 以获取 markdown 格式的通用输出
+    # 预留一定空间给模板外壳
+    template_overhead = 200 
+    batches = split_content_func(
+        report_data, "wework", update_info, max_bytes=batch_size - template_overhead, mode=mode,
+        rss_items=rss_items,
+        rss_new_items=rss_new_items,
+        ai_content=ai_content,
+        standalone_data=standalone_data,
+        ai_stats=ai_stats,
+        report_type=report_type,
+    )
+
+    # 统一添加批次头部
+    batches = add_batch_headers(batches, "wework", batch_size)
+
+    print(f"{log_prefix}消息分为 {len(batches)} 批次发送 [{report_type}]")
+
+    # 逐批发送
+    for i, batch_content in enumerate(batches, 1):
+        content_size = len(batch_content.encode("utf-8"))
+        print(
+            f"发送{log_prefix}第 {i}/{len(batches)} 批次，大小：{content_size} 字节 [{report_type}]"
+        )
+
+        try:
+            # 构建 payload
+            if payload_template:
+                # 简单的字符串替换
+                # 注意：content 可能包含 JSON 特殊字符，需要先转义
+                json_content = json.dumps(batch_content)[1:-1] # 去掉首尾引号
+                json_title = json.dumps(report_type)[1:-1]
+                
+                payload_str = payload_template.replace("{content}", json_content).replace("{title}", json_title)
+                
+                # 尝试解析为 JSON 对象以验证有效性
+                try:
+                    payload = json.loads(payload_str)
+                except json.JSONDecodeError as e:
+                    print(f"{log_prefix} JSON 模板解析失败: {e}")
+                    # 回退到默认格式
+                    payload = {"title": report_type, "content": batch_content}
+            else:
+                # 默认格式
+                payload = {"title": report_type, "content": batch_content}
+
+            response = requests.post(
+                webhook_url, headers=headers, json=payload, proxies=proxies, timeout=30
+            )
+            
+            if response.status_code >= 200 and response.status_code < 300:
+                print(f"{log_prefix}第 {i}/{len(batches)} 批次发送成功 [{report_type}]")
+                if i < len(batches):
+                    time.sleep(batch_interval)
+            else:
+                print(
+                    f"{log_prefix}第 {i}/{len(batches)} 批次发送失败 [{report_type}]，状态码：{response.status_code}, 响应: {response.text}"
+                )
+                return False
+        except Exception as e:
+            print(f"{log_prefix}第 {i}/{len(batches)} 批次发送出错 [{report_type}]：{e}")
+            return False
+
+    print(f"{log_prefix}所有 {len(batches)} 批次发送完成 [{report_type}]")
+
+>>>>>>> upstream/master
     return True
